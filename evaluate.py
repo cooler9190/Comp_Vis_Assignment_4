@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from object_detector import ObjectDetector
 from datahandler import test_dataloader
+from torchmetrics.detection.mean_ap import MeanAveragePrecision
 
 # Intersection over Union (IoU) Helper
 # In order to evaluate the performance of our object detection model, we need to calculate the Intersection over Union (IoU) metric, 
 # which measures the overlap between the predicted bounding boxes and the ground truth bounding boxes. 
-# The IoU is calculated as the area of overlap divided by the area of union between the predicted and ground truth boxes.
+# The IoU is calculated as the area of overlap divided by the area of union between the predicted and ground truth boxes.    
 
 def calculate_iou(box1, box2):
     # Calculate IoU between two bounding boxes
@@ -39,6 +40,95 @@ def calculate_iou(box1, box2):
 
     # Add small epsilon to prevent division by zero
     return inter_area / (union_area + 1e-6)
+
+
+# Calculate mAP at IoU=0.5 for a given dataloader using torchmetrics
+def calculate_mAP_score(model, dataloader):
+    device = next(model.parameters()).device  # Get device from model parameters
+
+    # Initialize metric. 'cxcywh' is center x, center y, width, height format
+    metric = MeanAveragePrecision(box_format='cxcywh', iou_type='bbox')
+
+    model.eval()  # Set model to evaluation mode
+    with torch.no_grad():  # Disable gradient calculation for evaluation
+        for images, targets in dataloader:
+            images = images.to(device)
+            predictions = model(images)  # Get raw predictions from the model
+
+            batch_size = predictions.shape[0]
+            predictions = predictions.view(batch_size, 7, 7, 7).cpu()  # Reshape to (Batch, S, S, B*5 + C)
+            targets = targets.cpu()  # Move targets to CPU
+
+            preds_list = []
+            target_list = []
+
+            for b in range(batch_size):
+                # Format targets
+                target_boxes = []
+                target_labels = []
+                for i in range(7):
+                    for j in range(7):
+                        if targets[b, i, j, 4] == 1:  # Objectness score in target
+                            t_box = targets[b, i, j, 0:4]  # Get target box coordinates
+                            t_x = (t_box[0] + j) / 7.0  # Convert back to global x_center
+                            t_y = (t_box[1] + i) / 7.0  # Convert back to global y_center
+                            t_cls = torch.argmax(targets[b, i, j, 5:7]).item()  # Get class label
+                            target_boxes.append([t_x, t_y, t_box[2].item(), t_box[3].item()])  # Append ground truth box
+                            target_labels.append(t_cls)  # Append class label
+                
+                if len(target_boxes) > 0:
+                    target_list.append({
+                        'boxes': torch.tensor(target_boxes, dtype=torch.float32),
+                        'labels': torch.tensor(target_labels, dtype=torch.int64)
+                    })
+                else:
+                    target_list.append({
+                        'boxes': torch.empty((0, 4), dtype=torch.float32),
+                        'labels': torch.empty((0,), dtype=torch.int64)
+                    })
+                
+                # Format predictions
+                pred_boxes = []
+                pred_labels = []
+                pred_scores = []
+
+                for i in range(7):
+                    for j in range(7):
+                        obj_conf = predictions[b, i, j, 4].item()  # Objectness score
+                        class_probs = predictions[b, i, j, 5:7]  # Get the class with the highest probability and its confidence
+                        p_cls = torch.argmax(class_probs).item()  # Get predicted class label
+                        final_conf = obj_conf * class_probs[p_cls].item()  # Final confidence score for the predicted class
+
+                        # We use a low threshold to capture all predictions for the curve
+                        if final_conf > 0.001:
+                            p_box = predictions[b, i, j, 0:4]  # Get predicted box coordinates
+                            p_x = (p_box[0] + j) / 7.0  # Convert back to global x_center
+                            p_y = (p_box[1] + i) / 7.0  # Convert back to global y_center
+                            pred_boxes.append([p_x, p_y, p_box[2].item(), p_box[3].item()])  # Append predicted box
+                            pred_labels.append(p_cls)  # Append predicted class label
+                            pred_scores.append(final_conf)  # Append confidence score
+
+                if len(pred_boxes) > 0:
+                    preds_list.append({
+                        'boxes': torch.tensor(pred_boxes, dtype=torch.float32),
+                        'labels': torch.tensor(pred_labels, dtype=torch.int64),
+                        'scores': torch.tensor(pred_scores, dtype=torch.float32)
+                    })
+                else:
+                    preds_list.append({
+                        'boxes': torch.empty((0, 4), dtype=torch.float32),
+                        'labels': torch.empty((0,), dtype=torch.int64),
+                        'scores': torch.empty((0,), dtype=torch.float32)
+                    })
+
+            # Update metric with current batch predictions and targets
+            metric.update(preds_list, target_list)
+    
+    # Compute final mAP score
+    results = metric.compute()
+
+    # Return mAP at IoU threshold of 0.5
+    return results['map_50'].item()
 
 # Extract Predictions and Ground Truths
 def get_boxes(predictions, targets, conf_threshold):
