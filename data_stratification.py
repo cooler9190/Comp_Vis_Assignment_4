@@ -27,10 +27,10 @@ for ann_path in ann_files:
     else:
         image_labels.append("unknown")  # Handle case with no objects
 
-# Firt split: 15% test set, 85% remaining for train + validation
+# Firt split: 10% test set, 90% remaining for train + validation
 trainval_imgs, test_imgs, trainval_anns, test_anns, trainval_labels, _ = train_test_split(
     img_files, ann_files, image_labels,
-    test_size=0.15,
+    test_size=0.10,
     random_state=42,
     stratify=image_labels
 )
