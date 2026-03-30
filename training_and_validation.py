@@ -11,8 +11,8 @@ class YoloLoss(nn.Module):
         self.S = S  # Grid size
         self.B = B  # Number of bounding boxes per grid cell
         self.C = C  # Number of classes
-        self.lambda_coord = 5.0  # Weight for coordinate loss
-        self.lambda_noobj = 0.5  # Weight for no-object confidence loss
+        self.lambda_coord = 5.0  # Weight for coordinate loss, from YOLO Paper
+        self.lambda_noobj = 0.5  # Weight for no-object confidence loss, from YOLO Paper
 
     def forward(self, predictions, target):
         # Reshape predictions from (Batch, 343) to (Batch, 7, 7, 7)
@@ -67,16 +67,16 @@ def train_model():
     model = ObjectDetector().to(device)
     criterion = YoloLoss()
 
-    # We use Adam optimizer insead of SGD for faster convergence, especially since YOLO can be sensitive to learning rates and benefits from adaptive learning rate adjustments.
+    # We use Adam optimizer instead of SGD for faster convergence, especially since YOLO can be sensitive to learning rates and benefits from adaptive learning rate adjustments.
     optimizer = Adam(model.parameters(), lr=1e-4) # 1e-4 is a good starting point for YOLO
 
     # Early stopping hyperparameters
-    EPOCHS = 50
+    max_epochs = 50
     patience = 5
     best_val_loss = float('inf')
-    epochs_no_improve = 0
+    impatience = 0
 
-    for epoch in range(EPOCHS):
+    for epoch in range(max_epochs):
         # Training phase
         model.train()
         train_loss = 0.0
@@ -109,18 +109,19 @@ def train_model():
                 val_loss += loss.item() # Accumulate validation loss
 
         avg_val_loss = val_loss / len(val_dataloader)
-        print(f"Epoch {epoch+1}/{EPOCHS} - Train Loss: {avg_train_loss:.4f} - Val Loss: {avg_val_loss:.4f}")
+        print(f"Epoch {epoch+1}/{max_epochs} - Train Loss: {avg_train_loss:.4f} - Val Loss: {avg_val_loss:.4f}")
 
         # Check for early stopping
-        if avg_val_loss < best_val_loss:
+        if avg_val_loss < best_val_loss: # Lower loss, improvement.
+            # Update lowest/best loss, and reset patience.
             best_val_loss = avg_val_loss
-            epochs_no_improve = 0
+            impatience = 0
 
             # Save the best model weights
             torch.save(model.state_dict(), "best_yolo_model.pth")
-        else:
-            epochs_no_improve += 1
-            if epochs_no_improve >= patience:
+        else: # Equal/Higher loss, no improvement.
+            impatience += 1 #
+            if impatience >= patience:
                 print(f"Early stopping triggered after {epoch+1} epochs.")
                 break
     
