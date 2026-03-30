@@ -1,4 +1,5 @@
 # Code snippet from assignment 4
+# https://colab.research.google.com/drive/1oyRBec77YBynOWLmEPIXEzyO3R4BrIUF?usp=drive_link
 
 import torch
 import xml.etree.ElementTree as ET
@@ -46,31 +47,25 @@ class CatDogDataset(Dataset):
         ann_path = self.ann_files[idx]
 
         image = Image.open(img_path).convert("RGB")
-        width, height, objects = self.parse_annotation(ann_path)
+        image_width, image_height, objects = self.parse_annotation(ann_path)
 
         # Create a blank 7x7 grid. Each cell has 7 values: [x, y, w, h, confidence, class1, class2]
         target_matrix = torch.zeros((7, 7, 7))
         
         #bboxes = []
         for obj in objects:
+            # Global YOLO format: [x_center, y_center, width, height] normalized to [0, 1] relative to image.
             xmin, ymin, xmax, ymax = obj['bbox']
-
-            # xmin = obj['bbox'][0]
-            # ymin = obj['bbox'][1]
-            # xmax = obj['bbox'][2]
-            # ymax = obj['bbox'][3]
-
-            # Global YOLO format: [x_center, y_center, width, height] normalized to [0, 1]
-            x_center = ((xmin + xmax) / 2.0) / width
-            y_center = ((ymin + ymax) / 2.0) / height
-            box_width = (xmax - xmin) / width
-            box_height = (ymax - ymin) / height
+            x_center = ((xmin + xmax) / 2.0) / image_width
+            y_center = ((ymin + ymax) / 2.0) / image_height
+            box_width = (xmax - xmin) / image_width
+            box_height = (ymax - ymin) / image_height
 
             # Find the grid cell (i, j) that contains the center of the bounding box
-            i = int(y_center * 7)  # Row index
-            j = int(x_center * 7)  # Column index
+            i = min(int(y_center * 7), 6)  # Row index
+            j = min(int(x_center * 7), 6)  # Column index
 
-            # Convert x and y to be offsets realtive to the bounds of specific grid cell
+            # Convert x and y to be offsets relative to the bounds of specific grid cell
             x_cell = x_center * 7 - j  # Offset within the cell
             y_cell = y_center * 7 - i  # Offset within the cell
 
@@ -83,23 +78,16 @@ class CatDogDataset(Dataset):
                 # Set one-hot encoding for the class label (0 for cat, 1 for dog)
                 target_matrix[i, j, 5 + obj['label']] = 1.0  # Class label starts at index 5
 
+        # Apply image resizing.
         if self.transform:
             image = self.transform(image)
-
-        #     bboxes.append([x_center, y_center, box_width, box_height])  # in your assignment 4, you need to convert bbox into [x, y, w, h] and value range [0, 1]
-
-        # bboxes = torch.tensor(bboxes, dtype=torch.float32)
-        # labels = torch.tensor([obj["label"] for obj in objects], dtype=torch.int64)
-
-        # if self.transform:
-        #     image = self.transform(image)
 
         return image, target_matrix
 
 
 # Define transformations
 transform = T.Compose([
-    T.Resize((INPUT_IMG_SZ, INPUT_IMG_SZ)),
+    T.Resize((INPUT_IMG_SZ, INPUT_IMG_SZ)), # Does not account for aspect ratio just as the YOLO paper. Defaults is Bilinear interpolation.
     T.ToTensor()
 ])
 
@@ -109,23 +97,24 @@ val_dataset = CatDogDataset(img_files=val_imgs, ann_files=val_anns, transform=tr
 test_dataset = CatDogDataset(img_files=test_imgs, ann_files=test_anns, transform=transform)
 
 # Initialize dataloaders for each dataset
-train_dataloader = DataLoader(train_dataset, batch_size=4, shuffle=True)
-val_dataloader = DataLoader(val_dataset, batch_size=4, shuffle=False)
-test_dataloader = DataLoader(test_dataset, batch_size=4, shuffle=False)
+set_batch_size=64 # Value as in YOLO paper
+train_dataloader = DataLoader(train_dataset, batch_size=set_batch_size, shuffle=True)
+val_dataloader = DataLoader(val_dataset, batch_size=set_batch_size, shuffle=False)
+test_dataloader = DataLoader(test_dataset, batch_size=set_batch_size, shuffle=False)
 
 
 # # Function to visualize a batch
 # def visualize_batch(dataloader):
 #     images, target_matrices = next(iter(dataloader))
 #     fig, axes = plt.subplots(1, len(images), figsize=(15, 5))
-
+#
 #     if len(images) == 1:
 #         axes = [axes]
-
+#
 #     for i, (img, target_matrix) in enumerate(zip(images, target_matrices)):
 #         img = img.permute(1, 2, 0).numpy()
 #         axes[i].imshow(img)
-
+#
 #         for j in range(7):
 #             for k in range(7):
 #                 if target_matrix[j, k, 4] == 1:  # Check if object is present
@@ -139,16 +128,16 @@ test_dataloader = DataLoader(test_dataset, batch_size=4, shuffle=False)
 #             ymin = (y_center - box_height / 2) * img.shape[0]
 #             xmax = (x_center + box_width / 2) * img.shape[1]
 #             ymax = (y_center + box_height / 2) * img.shape[0]
-
+#
 #             rect = patches.Rectangle((xmin, ymin), xmax - xmin, ymax - ymin,
 #                                      linewidth=2, edgecolor='r', facecolor='none')
 #             axes[i].add_patch(rect)
 #             axes[i].text(xmin, ymin - 5, f'Label: {lbl.item()}', color='red', fontsize=10,
 #                          bbox=dict(facecolor='white', alpha=0.5))
 #         axes[i].axis('off')
-
+#
 #     plt.show()
-
-
+#
+#
 # # Visualize a batch
 # visualize_batch(train_dataloader)

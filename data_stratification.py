@@ -27,20 +27,20 @@ for ann_path in ann_files:
     else:
         image_labels.append("unknown")  # Handle case with no objects
 
-# Firt split: 10% test set, 90% remaining for train + validation
+# First split: 10% test set, 90% remaining for train + validation
 trainval_imgs, test_imgs, trainval_anns, test_anns, trainval_labels, _ = train_test_split(
     img_files, ann_files, image_labels,
-    test_size=0.10,
-    random_state=42,
-    stratify=image_labels
+    test_size=0.10, # 10% test set.
+    random_state=42, # Set seed.
+    stratify=image_labels # Preserve cat-dog-unknown ratio from original dataset.
 )
 
 # Second split: 20% of remaining for validation, 80% for training
 train_imgs, val_imgs, train_anns, val_anns = train_test_split(
     trainval_imgs, trainval_anns,
-    test_size=0.20,
-    random_state=42,
-    stratify=trainval_labels
+    test_size=0.20, # 20% validation.
+    random_state=42, # Set seed.
+    stratify=trainval_labels # Preserve cat-dog-unknown ratio from original dataset.
 )
 
 print(f"Total images: {len(img_files)}")
