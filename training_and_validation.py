@@ -3,6 +3,7 @@ from torch import nn
 from object_detector import ObjectDetector
 from datahandler import train_dataloader, val_dataloader
 from torch.optim import Adam
+import csv
 
 class YoloLoss(nn.Module):
     def __init__(self, S=7, B=1, C=2):
@@ -54,9 +55,54 @@ class YoloLoss(nn.Module):
             + class_loss
         )
 
+        # Loss components
+        components = {
+            "coordinate": xy_loss.item(),
+            "dimension": wh_loss.item(),
+            "object_confidence": obj_loss.item(),
+            "noobject_confidence": noobj_loss.item(),
+            "class_confidence": class_loss.item()
+        }
+
         # Return the average loss per item in the batch
-        return total_loss / predictions.shape[0]
-    
+        return (total_loss / predictions.shape[0]), components
+
+
+fields = [
+    "epoch",
+    "train_loss", "validation_loss",
+    "train_coordinate", "validation_coordinate",
+    "train_dimension", "validation_dimension",
+    "train_object_confidence", "validation_object_confidence",
+    "train_noobject_confidence", "validation_noobject_confidence",
+    "train_class_confidence", "validation_class_confidence",
+]
+# Initialise csv document with correct field names.
+def initialise_logs():
+    with open("loss_log.csv", "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writeheader()
+
+# Fill csv document with loss values.
+def fill_logs(epoch, train_loss, train_components, validation_loss, validation_components):
+    epoch_data = {
+        "epoch": epoch + 1,
+        "train_loss": train_loss,
+        "validation_loss": validation_loss,
+        "train_coordinate": train_components["coordinate"],
+        "validation_coordinate": validation_components["coordinate"],
+        "train_dimension": train_components["dimension"],
+        "validation_dimension": validation_components["dimension"],
+        "train_object_confidence": train_components["object_confidence"],
+        "validation_object_confidence": validation_components["object_confidence"],
+        "train_noobject_confidence": train_components["noobject_confidence"],
+        "validation_noobject_confidence": validation_components["noobject_confidence"],
+        "train_class_confidence": train_components["class_confidence"],
+        "validation_class_confidence": validation_components["class_confidence"],
+    }
+    with open("loss_log.csv", "a", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fields)
+        writer.writerow(epoch_data)
 
 def train_model():
     # Setup device
@@ -76,39 +122,57 @@ def train_model():
     best_val_loss = float('inf')
     impatience = 0
 
+    # Initialise log file to store losses in.
+    initialise_logs()
+
+    # Epoch.
     for epoch in range(max_epochs):
         # Training phase
         model.train()
         train_loss = 0.0
+        components = ["coordinate", "dimension", "object_confidence", "noobject_confidence", "class_confidence"]
+        train_loss_components = {k: 0.0 for k in components}
 
         for images, targets in train_dataloader:
             images, targets = images.to(device), targets.to(device)
 
             optimizer.zero_grad()  # Clear gradients
             predictions = model(images)  # Forward pass
-            loss = criterion(predictions, targets)  # Compute loss
+            loss, loss_components = criterion(predictions, targets)  # Compute loss
 
             loss.backward()  # Backpropagation
             optimizer.step()  # Update weights
 
-            train_loss += loss.item() # Accumulate loss for the epoch
-        
+            # Accumulate loss (components) for the epoch
+            train_loss += loss.item()
+            for k in loss_components: train_loss_components[k] += loss_components[k]
+
+        # Average over the batch.
         avg_train_loss = train_loss / len(train_dataloader)
+        avg_train_loss_components = {k: v / len(train_dataloader) for k, v in train_loss_components.items()}
 
         # Validation phase
         model.eval()
         val_loss = 0.0
+        val_loss_components= {k: 0.0 for k in components}
 
         with torch.no_grad():  # No need to compute gradients during validation
             for images, targets in val_dataloader:
                 images, targets = images.to(device), targets.to(device)
 
                 predictions = model(images)  # Forward pass
-                loss = criterion(predictions, targets)  # Compute loss
+                loss, loss_components = criterion(predictions, targets)  # Compute loss
 
-                val_loss += loss.item() # Accumulate validation loss
+                # Accumulate loss (components) for the epoch
+                val_loss += loss.item()
+                for k in loss_components: val_loss_components[k] += loss_components[k]
 
+        # Average over the batch.
         avg_val_loss = val_loss / len(val_dataloader)
+        avg_val_loss_components = {k: v / len(val_dataloader) for k, v in val_loss_components.items()}
+
+        # Update logs, and print training/validation losses.
+        fill_logs(epoch, avg_train_loss, avg_train_loss_components, avg_val_loss, avg_val_loss_components)
         print(f"Epoch {epoch+1}/{max_epochs} - Train Loss: {avg_train_loss:.4f} - Val Loss: {avg_val_loss:.4f}")
 
         # Check for early stopping
