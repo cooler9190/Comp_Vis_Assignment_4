@@ -235,21 +235,44 @@ def evaluate_model(model, dataloader, iou_threshold=0.5):
                 if target_idx not in matched_targets:
                     conf_matrix[target_box[1], 2] += 1  # False Negative (Object missed)
             
-            # Calculate metrics
-            TP = np.diag(conf_matrix)[:2].sum()  # True Positives for each class
-            FP = conf_matrix[2, :2].sum() + conf_matrix[0, 1] + conf_matrix[1, 0]  # False Positives (Predicted class but wrong)
+            # Calculate metrics per class (Macro-Averaging)
+            class_precisions = []
+            class_recalls = []
+            class_f1s = []
+
+            for c in range(2):  # For each class (Cat and Dog)
+                TP = conf_matrix[c, c]  # True Positives for class c
+                FP = conf_matrix[:, c].sum() - TP  # False Positives is everything in the predicted column 'c', minus the True Positives
+                FN = conf_matrix[c, :].sum() - TP  # False Negatives is everything in the true row 'c', minus the True Positives
+
+                precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+                recall = TP / (TP + FN) if (TP + FN) > 0 else 0
+                f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+
+                class_precisions.append(precision)
+                class_recalls.append(recall)
+                class_f1s.append(f1_score)
             
-            # Add missclafications to FN (e.g., cat predicted as dog or dog predicted as cat should count as FN for the true class)
-            FN = conf_matrix[:2, 2].sum() + conf_matrix[0, 1] + conf_matrix[1, 0]
+            # Calculate Macro averages (the mean of the per-class metrics)
+            macro_precision = np.mean(class_precisions)
+            macro_recall = np.mean(class_recalls)
+            macro_f1 = np.mean(class_f1s)
 
-            precision = TP / (TP + FP) if (TP + FP) > 0 else 0
-            recall = TP / (TP + FN) if (TP + FN) > 0 else 0
-            f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
+            # # Calculate metrics
+            # TP = np.diag(conf_matrix)[:2].sum()  # True Positives for each class
+            # FP = conf_matrix[2, :2].sum() + conf_matrix[0, 1] + conf_matrix[1, 0]  # False Positives (Predicted class but wrong)
+            
+            # # Add missclafications to FN (e.g., cat predicted as dog or dog predicted as cat should count as FN for the true class)
+            # FN = conf_matrix[:2, 2].sum() + conf_matrix[0, 1] + conf_matrix[1, 0]
 
-            print(f"{threshold:<10.2f} | {precision:<10.4f} | {recall:<10.4f} | {f1_score:<10.4f}")
+            # precision = TP / (TP + FP) if (TP + FP) > 0 else 0
+            # recall = TP / (TP + FN) if (TP + FN) > 0 else 0
+            # f1_score = 2 * (precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
 
-            if f1_score > best_f1:
-                best_f1 = f1_score
+            print(f"{threshold:<10.2f} | {macro_precision:<10.4f} | {macro_recall:<10.4f} | {macro_f1:<10.4f}")
+
+            if macro_f1 > best_f1:
+                best_f1 = macro_f1
                 best_threshold = threshold
                 best_confusion_matrix = conf_matrix
     
