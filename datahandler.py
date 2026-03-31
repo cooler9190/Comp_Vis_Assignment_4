@@ -98,9 +98,9 @@ test_dataset = CatDogDataset(img_files=test_imgs, ann_files=test_anns, transform
 
 # Initialize dataloaders for each dataset
 set_batch_size=64 # Value as in YOLO paper
-train_dataloader = DataLoader(train_dataset, batch_size=set_batch_size, shuffle=True)
-val_dataloader = DataLoader(val_dataset, batch_size=set_batch_size, shuffle=False)
-test_dataloader = DataLoader(test_dataset, batch_size=set_batch_size, shuffle=False)
+train_dataloader = DataLoader(train_dataset, batch_size=set_batch_size, shuffle=True, pin_memory=True)
+val_dataloader = DataLoader(val_dataset, batch_size=set_batch_size, shuffle=False, pin_memory=True)
+test_dataloader = DataLoader(test_dataset, batch_size=set_batch_size, shuffle=False, pin_memory=True)
 
 
 # # Function to visualize a batch

@@ -108,16 +108,20 @@ def train_model():
     # Setup device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
+    print("CUDA available:", torch.cuda.is_available())
+    print("CUDA device count:", torch.cuda.device_count())
+    print("Current device:", torch.cuda.current_device() if torch.cuda.is_available() else "N/A")
+    print("Device name:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "N/A")
 
     # Initialize model, loss function, and optimizer
     model = ObjectDetector().to(device)
-    criterion = YoloLoss()
+    criterion = YoloLoss().to(device)
 
     # We use Adam optimizer instead of SGD for faster convergence, especially since YOLO can be sensitive to learning rates and benefits from adaptive learning rate adjustments.
     optimizer = Adam(model.parameters(), lr=1e-4) # 1e-4 is a good starting point for YOLO
 
     # Early stopping hyperparameters
-    max_epochs = 50
+    max_epochs = 100
     patience = 5
     best_val_loss = float('inf')
     impatience = 0
@@ -132,6 +136,7 @@ def train_model():
         train_loss = 0.0
         components = ["coordinate", "dimension", "object_confidence", "noobject_confidence", "class_confidence"]
         train_loss_components = {k: 0.0 for k in components}
+
 
         for images, targets in train_dataloader:
             images, targets = images.to(device), targets.to(device)
@@ -174,6 +179,8 @@ def train_model():
         # Update logs, and print training/validation losses.
         fill_logs(epoch, avg_train_loss, avg_train_loss_components, avg_val_loss, avg_val_loss_components)
         print(f"Epoch {epoch+1}/{max_epochs} - Train Loss: {avg_train_loss:.4f} - Val Loss: {avg_val_loss:.4f}")
+
+
 
         # Check for early stopping
         if avg_val_loss < best_val_loss: # Lower loss, improvement.

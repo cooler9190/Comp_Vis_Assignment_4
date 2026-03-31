@@ -290,3 +290,4 @@ def plot_confusion_matrix(conf_matrix, threshold):
     plt.ylabel('True Label')
     plt.title(f'Confusion Matrix at Threshold {threshold:.2f}')
     plt.show()
+    plt.savefig(f"confusion_matrix.png")
