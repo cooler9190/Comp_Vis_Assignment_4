@@ -118,7 +118,8 @@ def train_model():
     criterion = YoloLoss().to(device)
 
     # We use Adam optimizer instead of SGD for faster convergence, especially since YOLO can be sensitive to learning rates and benefits from adaptive learning rate adjustments.
-    optimizer = Adam(model.parameters(), lr=1e-4) # 1e-4 is a good starting point for YOLO
+    # Adding weight decay (L2 regularization) can help prevent overfitting, which is a common issue in object detection tasks. A typical weight decay value for Adam is around 1e-5 to 1e-4
+    optimizer = Adam(model.parameters(), lr=1e-4, weight_decay=1e-4) # 1e-4 is a good starting point for YOLO
 
     # Early stopping hyperparameters
     max_epochs = 100
