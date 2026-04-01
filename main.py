@@ -52,6 +52,5 @@ def run_pipeline():
 
 if __name__ == "__main__":
     run_pipeline()
-    frequency = 2500  # Set Frequency To 2500 Hertz
-    duration = 1000  # Set Duration To 1000 ms == 1 second
-    winsound.Beep(frequency, duration)
+    # Play an annoying to indicate completed program.
+    winsound.Beep(2500, 1000) # From @ https://stackoverflow.com/questions/6537481/python-making-a-beep-noise
