@@ -8,6 +8,8 @@ from torch.utils.data import Dataset, DataLoader
 from PIL import Image
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+import random
+import torchvision.transforms.functional as TF
 from data_stratification import train_imgs, train_anns, val_imgs, val_anns, test_imgs, test_anns  # Importing the stratified splits from data_stratification.py
 
 INPUT_IMG_SZ = 112
@@ -49,6 +51,17 @@ class CatDogDataset(Dataset):
         image = Image.open(img_path).convert("RGB")
         image_width, image_height, objects = self.parse_annotation(ann_path)
 
+        # Data augmentation
+        if random.random() > 0.5:
+            image = TF.hflip(image) # Flip actual image pixels
+            # Flip bounding boxes to match the flipped image
+            for obj in objects:
+                old_xmin = obj['bbox'][0]
+                old_xmax = obj['bbox'][2]
+                # Update bounding box coordinates for horizontal flip
+                obj['bbox'][0] = image_width - old_xmax  # Update xmin
+                obj['bbox'][2] = image_width - old_xmin  # Update xmax
+
         # Create a blank 7x7 grid. Each cell has 7 values: [x, y, w, h, confidence, class1, class2]
         target_matrix = torch.zeros((7, 7, 7))
         
@@ -88,6 +101,10 @@ class CatDogDataset(Dataset):
 # Define transformations
 transform = T.Compose([
     T.Resize((INPUT_IMG_SZ, INPUT_IMG_SZ)), # Does not account for aspect ratio just as the YOLO paper. Defaults is Bilinear interpolation.
+
+    # Photometric distortions for data augmentation
+    T.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3, hue=0.1), # Randomly change brightness, contrast, saturation, and hue for data augmentation.
+    T.RandomApply([T.GaussianBlur(kernel_size=3)], p=0.2), # Randomly apply Gaussian blur with a 20% chance to augment the data and help the model generalize better.
     T.ToTensor()
 ])
 
