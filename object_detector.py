@@ -46,6 +46,7 @@ class ObjectDetector(nn.Module):
         self.out_activation = nn.Sigmoid()  # Sigmoid activation for output layer to get values in [0, 1]
 
         # Reusable ReLU activation for hidden layers
+        # try silu
         self.relu = nn.LeakyReLU(negative_slope=0.1) # From YOLO paper.
         # self.relu = nn.ReLU() # Simpler ReLU activation function
 

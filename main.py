@@ -3,18 +3,29 @@ from training_and_validation import train_model
 from evaluate import calculate_mAP_score, evaluate_model, plot_confusion_matrix
 from object_detector import ObjectDetector
 from datahandler import train_dataloader, val_dataloader, test_dataloader
+from torchsummary import summary
+import winsound
 
 def run_pipeline():
-    # Train the model and save the 'best_yolo_model.pth' file
-    print("\nPhase 1: Training the model...")
-    train_model()
-
-    print("\nPhase 2: Evaluating the model...")
     # Setup the device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
+    print("CUDA available:", torch.cuda.is_available())
+    print("CUDA device count:", torch.cuda.device_count())
+    print("Current device:", torch.cuda.current_device() if torch.cuda.is_available() else "N/A")
+    print("Device name:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "N/A")
 
-    # Initialize a fresh model and load the best weights
+    # Print summary, using image shape from dataloader as input size.
+    model = ObjectDetector().to(device)
+    images, _ = next(iter(test_dataloader))
+    summary(model, input_size=images.shape[1:])
+
+    # Train the model and save the 'best_yolo_model.pth' file
+    print("\nPhase 1: Training the model...")
+    train_model(device)
+
+    print("\nPhase 2: Evaluating the model...")
+    # Initialize a fresh model load the best weights
     model = ObjectDetector().to(device)
     model.load_state_dict(torch.load("best_yolo_model.pth", map_location=device))
 
@@ -41,3 +52,6 @@ def run_pipeline():
 
 if __name__ == "__main__":
     run_pipeline()
+    frequency = 2500  # Set Frequency To 2500 Hertz
+    duration = 1000  # Set Duration To 1000 ms == 1 second
+    winsound.Beep(frequency, duration)

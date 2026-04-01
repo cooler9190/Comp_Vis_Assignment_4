@@ -105,22 +105,15 @@ def fill_logs(epoch, train_loss, train_components, validation_loss, validation_c
         writer = csv.DictWriter(f, fieldnames=fields)
         writer.writerow(epoch_data)
 
-def train_model():
-    # Setup device
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
-    print("CUDA available:", torch.cuda.is_available())
-    print("CUDA device count:", torch.cuda.device_count())
-    print("Current device:", torch.cuda.current_device() if torch.cuda.is_available() else "N/A")
-    print("Device name:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "N/A")
-
+def train_model(device):
     # Initialize model, loss function, and optimizer
     model = ObjectDetector().to(device)
     criterion = YoloLoss().to(device)
 
     # We use Adam optimizer instead of SGD for faster convergence, especially since YOLO can be sensitive to learning rates and benefits from adaptive learning rate adjustments.
     # Adding weight decay (L2 regularization) can help prevent overfitting, which is a common issue in object detection tasks. A typical weight decay value for Adam is around 1e-5 to 1e-4
-    optimizer = Adam(model.parameters(), lr=1e-4, weight_decay=1e-4) # 1e-4 is a good starting point for YOLO
+    optimizer = Adam(model.parameters(), lr=0.005, weight_decay=1e-4) # 1e-4 is a good starting point for YOLO
+    #optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9, weight_decay=1e-4)
 
     # Adding a learning rate scheduler that reduces the learning rate when the validation loss plateaus
     # If val_loss doesn't improve for 3 consecutive epochs, reduce the learning rate by a factor of 0.5. This can help the model converge better and escape local minima.
@@ -128,7 +121,7 @@ def train_model():
 
     # Early stopping hyperparameters
     max_epochs = 100
-    patience = 6
+    patience = 5
     best_val_loss = float('inf')
     impatience = 0
 
@@ -142,7 +135,6 @@ def train_model():
         train_loss = 0.0
         components = ["coordinate", "dimension", "object_confidence", "noobject_confidence", "class_confidence"]
         train_loss_components = {k: 0.0 for k in components}
-
 
         for images, targets in train_dataloader:
             images, targets = images.to(device), targets.to(device)
