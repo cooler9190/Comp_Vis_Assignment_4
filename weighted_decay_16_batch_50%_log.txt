@@ -1,0 +1,115 @@
+Total images: 3685
+Training set: 2652 images
+Validation set: 664 images
+Test set: 369 images
+
+Phase 1: Training the model...
+Using device: cuda
+CUDA available: True
+CUDA device count: 1
+Current device: 0
+Device name: NVIDIA GeForce RTX 4070 Laptop GPU
+Epoch 1/100 - Train Loss: 3.8420 - Val Loss: 2.4237
+Epoch 2/100 - Train Loss: 2.7130 - Val Loss: 2.2975
+Epoch 3/100 - Train Loss: 2.4642 - Val Loss: 2.2133
+Epoch 4/100 - Train Loss: 2.2994 - Val Loss: 2.1705
+Epoch 5/100 - Train Loss: 2.1704 - Val Loss: 2.1240
+Epoch 6/100 - Train Loss: 2.0743 - Val Loss: 2.0782
+Epoch 7/100 - Train Loss: 1.9598 - Val Loss: 2.0632
+Epoch 8/100 - Train Loss: 1.8820 - Val Loss: 2.0619
+Epoch 9/100 - Train Loss: 1.8173 - Val Loss: 2.0329
+Epoch 10/100 - Train Loss: 1.7395 - Val Loss: 2.0090
+Epoch 11/100 - Train Loss: 1.6853 - Val Loss: 1.9838
+Epoch 12/100 - Train Loss: 1.6395 - Val Loss: 1.9878
+Epoch 13/100 - Train Loss: 1.5813 - Val Loss: 1.9609
+Epoch 14/100 - Train Loss: 1.5381 - Val Loss: 1.9544
+Epoch 15/100 - Train Loss: 1.4733 - Val Loss: 1.9558
+Epoch 16/100 - Train Loss: 1.4490 - Val Loss: 1.9497
+Epoch 17/100 - Train Loss: 1.4034 - Val Loss: 1.9354
+Epoch 18/100 - Train Loss: 1.3683 - Val Loss: 1.9363
+Epoch 19/100 - Train Loss: 1.2998 - Val Loss: 1.9357
+Epoch 20/100 - Train Loss: 1.2816 - Val Loss: 1.9142
+Epoch 21/100 - Train Loss: 1.2505 - Val Loss: 1.9213
+Epoch 22/100 - Train Loss: 1.2100 - Val Loss: 1.9277
+Epoch 23/100 - Train Loss: 1.1836 - Val Loss: 1.9136
+Epoch 24/100 - Train Loss: 1.1541 - Val Loss: 1.9162
+Epoch 25/100 - Train Loss: 1.1243 - Val Loss: 1.8972
+Epoch 26/100 - Train Loss: 1.1019 - Val Loss: 1.9044
+Epoch 27/100 - Train Loss: 1.0666 - Val Loss: 1.8954
+Epoch 28/100 - Train Loss: 1.0311 - Val Loss: 1.8983
+Epoch 29/100 - Train Loss: 0.9987 - Val Loss: 1.8958
+Epoch 30/100 - Train Loss: 0.9736 - Val Loss: 1.9029
+Epoch 31/100 - Train Loss: 0.9431 - Val Loss: 1.8992
+Epoch 32/100 - Train Loss: 0.9268 - Val Loss: 1.8953
+Epoch 33/100 - Train Loss: 0.9098 - Val Loss: 1.8944
+Epoch 34/100 - Train Loss: 0.8858 - Val Loss: 1.8975
+Epoch 35/100 - Train Loss: 0.8584 - Val Loss: 1.8767
+Epoch 36/100 - Train Loss: 0.8301 - Val Loss: 1.8654
+Epoch 37/100 - Train Loss: 0.8243 - Val Loss: 1.8616
+Epoch 38/100 - Train Loss: 0.7997 - Val Loss: 1.8547
+Epoch 39/100 - Train Loss: 0.7883 - Val Loss: 1.8680
+Epoch 40/100 - Train Loss: 0.7685 - Val Loss: 1.8510
+Epoch 41/100 - Train Loss: 0.7452 - Val Loss: 1.8582
+Epoch 42/100 - Train Loss: 0.7226 - Val Loss: 1.8532
+Epoch 43/100 - Train Loss: 0.7061 - Val Loss: 1.8494
+Epoch 44/100 - Train Loss: 0.6971 - Val Loss: 1.8476
+Epoch 45/100 - Train Loss: 0.6787 - Val Loss: 1.8338
+Epoch 46/100 - Train Loss: 0.6667 - Val Loss: 1.8383
+Epoch 47/100 - Train Loss: 0.6408 - Val Loss: 1.8442
+Epoch 48/100 - Train Loss: 0.6330 - Val Loss: 1.8376
+Epoch 49/100 - Train Loss: 0.6245 - Val Loss: 1.8330
+Epoch 50/100 - Train Loss: 0.6076 - Val Loss: 1.8323
+Epoch 51/100 - Train Loss: 0.6000 - Val Loss: 1.8342
+Epoch 52/100 - Train Loss: 0.5777 - Val Loss: 1.8294
+Epoch 53/100 - Train Loss: 0.5744 - Val Loss: 1.8233
+Epoch 54/100 - Train Loss: 0.5616 - Val Loss: 1.8298
+Epoch 55/100 - Train Loss: 0.5642 - Val Loss: 1.8233
+Epoch 56/100 - Train Loss: 0.5392 - Val Loss: 1.8181
+Epoch 57/100 - Train Loss: 0.5275 - Val Loss: 1.8175
+Epoch 58/100 - Train Loss: 0.5178 - Val Loss: 1.8220
+Epoch 59/100 - Train Loss: 0.4958 - Val Loss: 1.8361
+Epoch 60/100 - Train Loss: 0.4979 - Val Loss: 1.8284
+Epoch 61/100 - Train Loss: 0.4861 - Val Loss: 1.8382
+Epoch 62/100 - Train Loss: 0.4738 - Val Loss: 1.8224
+Early stopping triggered after 62 epochs.
+Training complete. Best validation loss: 1.8175
+Best model saved as 'best_yolo_model.pth'.
+
+Phase 2: Evaluating the model...
+Using device: cuda
+
+Calculating mAP score on all sets...
+Threshold  | Precision  | Recall     | F1 Score  
+---------------------------------------------
+0.00       | 0.0144     | 0.5605     | 0.0279    
+0.05       | 0.1098     | 0.5179     | 0.1793    
+0.10       | 0.1669     | 0.4585     | 0.2399    
+0.15       | 0.2066     | 0.4095     | 0.2680    
+0.20       | 0.2364     | 0.3811     | 0.2861    
+0.25       | 0.2741     | 0.3449     | 0.3004    
+0.30       | 0.3164     | 0.3041     | 0.3048    
+0.35       | 0.3422     | 0.2632     | 0.2933    
+0.40       | 0.3727     | 0.2282     | 0.2767    
+0.45       | 0.4361     | 0.2040     | 0.2705    
+0.50       | 0.4547     | 0.1794     | 0.2514    
+0.55       | 0.4864     | 0.1468     | 0.2191    
+0.60       | 0.4934     | 0.1222     | 0.1919    
+0.65       | 0.5458     | 0.0936     | 0.1565    
+0.70       | 0.6299     | 0.0690     | 0.1213    
+0.75       | 0.6152     | 0.0530     | 0.0966    
+0.80       | 0.7667     | 0.0328     | 0.0627    
+0.85       | 0.7000     | 0.0124     | 0.0244    
+0.90       | 0.2500     | 0.0020     | 0.0040    
+0.95       | 0.0000     | 0.0000     | 0.0000    
+---------------------------------------------
+Best Threshold: 0.30 with F1 Score: 0.3048
+RESULTS:
+mAP Score - Train Set: 0.9436
+mAP Score - Validation Set: 0.2318
+mAP Score - Test Set: 0.2106
+----------------------------------------
+Best Threshold: 0.30000000000000004
+Best Confusion Matrix:
+[[ 30  16  73]
+ [ 12  89 149]
+ [ 45 204   0]]

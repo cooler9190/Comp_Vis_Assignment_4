@@ -63,9 +63,10 @@ class ObjectDetector(nn.Module):
         x = self.relu(self.bn5(self.conv5(x)))
 
         x = self.flatten(x)
-        x = self.dropout(x)  # Apply dropout before fully connected layers
 
         x = self.relu(self.fc1(x))
+        # Moving dropout after the first fully connected layer allows us to regularize the dense layers, which can help prevent overfitting.
+        x = self.dropout(x)  # Apply dropout after the first fully connected layer
         x = self.out_activation(self.fc_out(x))  # Apply sigmoid activation to output layer
 
         return x

@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from object_detector import ObjectDetector
 from datahandler import train_dataloader, val_dataloader
 from torch.optim import Adam
@@ -121,9 +122,13 @@ def train_model():
     # Adding weight decay (L2 regularization) can help prevent overfitting, which is a common issue in object detection tasks. A typical weight decay value for Adam is around 1e-5 to 1e-4
     optimizer = Adam(model.parameters(), lr=1e-4, weight_decay=1e-4) # 1e-4 is a good starting point for YOLO
 
+    # Adding a learning rate scheduler that reduces the learning rate when the validation loss plateaus
+    # If val_loss doesn't improve for 3 consecutive epochs, reduce the learning rate by a factor of 0.5. This can help the model converge better and escape local minima.
+    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3)
+
     # Early stopping hyperparameters
     max_epochs = 100
-    patience = 5
+    patience = 6
     best_val_loss = float('inf')
     impatience = 0
 
@@ -181,7 +186,12 @@ def train_model():
         fill_logs(epoch, avg_train_loss, avg_train_loss_components, avg_val_loss, avg_val_loss_components)
         print(f"Epoch {epoch+1}/{max_epochs} - Train Loss: {avg_train_loss:.4f} - Val Loss: {avg_val_loss:.4f}")
 
+        # Step the scheduler with the validation loss
+        scheduler.step(avg_val_loss)
 
+        # Print current learning rate for debugging
+        current_lr = optimizer.param_groups[0]['lr']
+        print(f"Current learning rate: {current_lr:.4f}")
 
         # Check for early stopping
         if avg_val_loss < best_val_loss: # Lower loss, improvement.
@@ -192,7 +202,7 @@ def train_model():
             # Save the best model weights
             torch.save(model.state_dict(), "best_yolo_model.pth")
         else: # Equal/Higher loss, no improvement.
-            impatience += 1 #
+            impatience += 1
             if impatience >= patience:
                 print(f"Early stopping triggered after {epoch+1} epochs.")
                 break

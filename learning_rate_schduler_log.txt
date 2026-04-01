@@ -1,0 +1,137 @@
+Total images: 3685
+Training set: 2652 images
+Validation set: 664 images
+Test set: 369 images
+
+Phase 1: Training the model...
+Using device: cpu
+CUDA available: False
+CUDA device count: 0
+Current device: N/A
+Device name: N/A
+Epoch 1/100 - Train Loss: 4.2131 - Val Loss: 2.4913
+Current learning rate: 0.0001
+Epoch 2/100 - Train Loss: 2.8806 - Val Loss: 2.2888
+Current learning rate: 0.0001
+Epoch 3/100 - Train Loss: 2.4877 - Val Loss: 2.2145
+Current learning rate: 0.0001
+Epoch 4/100 - Train Loss: 2.2650 - Val Loss: 2.1632
+Current learning rate: 0.0001
+Epoch 5/100 - Train Loss: 2.1288 - Val Loss: 2.1194
+Current learning rate: 0.0001
+Epoch 6/100 - Train Loss: 2.0275 - Val Loss: 2.0827
+Current learning rate: 0.0001
+Epoch 7/100 - Train Loss: 1.9189 - Val Loss: 2.0487
+Current learning rate: 0.0001
+Epoch 8/100 - Train Loss: 1.8435 - Val Loss: 2.0162
+Current learning rate: 0.0001
+Epoch 9/100 - Train Loss: 1.7690 - Val Loss: 2.0226
+Current learning rate: 0.0001
+Epoch 10/100 - Train Loss: 1.6718 - Val Loss: 2.0100
+Current learning rate: 0.0001
+Epoch 11/100 - Train Loss: 1.6134 - Val Loss: 1.9807
+Current learning rate: 0.0001
+Epoch 12/100 - Train Loss: 1.5396 - Val Loss: 1.9687
+Current learning rate: 0.0001
+Epoch 13/100 - Train Loss: 1.5047 - Val Loss: 1.9819
+Current learning rate: 0.0001
+Epoch 14/100 - Train Loss: 1.4293 - Val Loss: 1.9608
+Current learning rate: 0.0001
+Epoch 15/100 - Train Loss: 1.3917 - Val Loss: 1.9389
+Current learning rate: 0.0001
+Epoch 16/100 - Train Loss: 1.3375 - Val Loss: 1.9531
+Current learning rate: 0.0001
+Epoch 17/100 - Train Loss: 1.2962 - Val Loss: 1.9473
+Epoch 17/100 - Train Loss: 1.2962 - Val Loss: 1.9473
+Current learning rate: 0.0001
+Epoch 18/100 - Train Loss: 1.2343 - Val Loss: 1.9512
+Current learning rate: 0.0001
+Epoch 19/100 - Train Loss: 1.1911 - Val Loss: 1.9227
+Epoch 19/100 - Train Loss: 1.1911 - Val Loss: 1.9227
+Current learning rate: 0.0001
+Epoch 20/100 - Train Loss: 1.1523 - Val Loss: 1.9431
+Current learning rate: 0.0001
+Epoch 21/100 - Train Loss: 1.1044 - Val Loss: 1.9294
+Current learning rate: 0.0001
+Epoch 22/100 - Train Loss: 1.0666 - Val Loss: 1.9318
+Current learning rate: 0.0001
+Epoch 23/100 - Train Loss: 1.0368 - Val Loss: 1.9380
+Current learning rate: 0.0000
+Epoch 24/100 - Train Loss: 0.9921 - Val Loss: 1.9184
+Current learning rate: 0.0000
+Epoch 25/100 - Train Loss: 0.9694 - Val Loss: 1.9164
+Current learning rate: 0.0000
+Epoch 26/100 - Train Loss: 0.9541 - Val Loss: 1.9120
+Current learning rate: 0.0000
+Epoch 27/100 - Train Loss: 0.9419 - Val Loss: 1.9176
+Current learning rate: 0.0000
+Epoch 28/100 - Train Loss: 0.9328 - Val Loss: 1.9110
+Current learning rate: 0.0000
+Epoch 29/100 - Train Loss: 0.9366 - Val Loss: 1.9123
+Current learning rate: 0.0000
+Epoch 30/100 - Train Loss: 0.9315 - Val Loss: 1.9087
+Current learning rate: 0.0000
+Epoch 31/100 - Train Loss: 0.9238 - Val Loss: 1.9082
+Current learning rate: 0.0000
+Epoch 32/100 - Train Loss: 0.9237 - Val Loss: 1.9173
+Current learning rate: 0.0000
+Epoch 33/100 - Train Loss: 0.9116 - Val Loss: 1.9070
+Current learning rate: 0.0000
+Epoch 34/100 - Train Loss: 0.9176 - Val Loss: 1.9056
+Current learning rate: 0.0000
+Epoch 35/100 - Train Loss: 0.8986 - Val Loss: 1.9143
+Current learning rate: 0.0000
+Epoch 36/100 - Train Loss: 0.8947 - Val Loss: 1.9108
+Current learning rate: 0.0000
+Epoch 37/100 - Train Loss: 0.8963 - Val Loss: 1.9110
+Current learning rate: 0.0000
+Epoch 38/100 - Train Loss: 0.8927 - Val Loss: 1.9142
+Current learning rate: 0.0000
+Epoch 39/100 - Train Loss: 0.8962 - Val Loss: 1.9097
+Current learning rate: 0.0000
+Epoch 40/100 - Train Loss: 0.8885 - Val Loss: 1.9112
+Current learning rate: 0.0000
+Early stopping triggered after 40 epochs.
+Training complete. Best validation loss: 1.9056
+Best model saved as 'best_yolo_model.pth'.
+
+Phase 2: Evaluating the model...
+Using device: cpu
+
+Calculating mAP score on all sets...
+C:\Users\Altai\AppData\Local\Packages\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\LocalCache\local-packages\Python313\site-packages\torch\utils\data\dataloader.py:775: UserWarning: 'pin_memory' argument is set as true but no accelerator is found, then device pinned memory won't be used.
+  super().__init__(loader)
+Threshold  | Precision  | Recall     | F1 Score  
+---------------------------------------------
+0.00       | 0.0130     | 0.4959     | 0.0253    
+0.05       | 0.0779     | 0.4347     | 0.1298    
+0.10       | 0.1356     | 0.3883     | 0.1926    
+0.15       | 0.1788     | 0.3412     | 0.2229    
+0.20       | 0.2239     | 0.2802     | 0.2332    
+0.25       | 0.3061     | 0.2378     | 0.2443    
+0.30       | 0.3690     | 0.1852     | 0.2274    
+0.35       | 0.4214     | 0.1568     | 0.2158    
+0.40       | 0.4505     | 0.1180     | 0.1785    
+0.45       | 0.4840     | 0.0852     | 0.1396    
+0.50       | 0.6444     | 0.0608     | 0.1068    
+0.55       | 0.7679     | 0.0342     | 0.0623    
+0.60       | 0.8125     | 0.0242     | 0.0459    
+0.65       | 0.7857     | 0.0122     | 0.0239    
+0.70       | 0.3750     | 0.0060     | 0.0118    
+0.75       | 0.5000     | 0.0020     | 0.0040    
+0.80       | 0.0000     | 0.0000     | 0.0000    
+0.85       | 0.0000     | 0.0000     | 0.0000    
+0.90       | 0.0000     | 0.0000     | 0.0000    
+0.95       | 0.0000     | 0.0000     | 0.0000    
+---------------------------------------------
+Best Threshold: 0.25 with F1 Score: 0.2443
+RESULTS:
+mAP Score - Train Set: 0.7304
+mAP Score - Validation Set: 0.1731
+mAP Score - Test Set: 0.1673
+----------------------------------------
+Best Threshold: 0.25
+Best Confusion Matrix:
+[[ 19  30  70]
+ [  3  79 168]
+ [ 27 243   0]]
