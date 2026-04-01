@@ -20,14 +20,14 @@ def run_pipeline():
     images, _ = next(iter(test_dataloader))
     summary(model, input_size=images.shape[1:])
 
-    # Train the model and save the 'best_yolo_model.pth' file
+    # Train the model and save the 'yolo_model.pth' file
     print("\nPhase 1: Training the model...")
     train_model(device)
 
     print("\nPhase 2: Evaluating the model...")
     # Initialize a fresh model load the best weights
     model = ObjectDetector().to(device)
-    model.load_state_dict(torch.load("best_yolo_model.pth", map_location=device))
+    model.load_state_dict(torch.load("yolo_model.pth", map_location=device))
 
     # Calculate mAP score for all sets
     print("\nCalculating mAP score on all sets...")
@@ -47,7 +47,7 @@ def run_pipeline():
     print(f"Best Threshold: {best_threshold}")
     print(f"Best Confusion Matrix:\n{best_confusion_matrix}")
 
-    # Display the final confusion matrix
+    # Display and save the final confusion matrix
     plot_confusion_matrix(best_confusion_matrix, best_threshold)
 
 if __name__ == "__main__":

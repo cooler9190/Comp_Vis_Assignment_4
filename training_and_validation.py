@@ -111,15 +111,15 @@ def train_model(device):
     criterion = YoloLoss().to(device)
 
     # We use Adam optimizer instead of SGD for faster convergence, especially since YOLO can be sensitive to learning rates and benefits from adaptive learning rate adjustments.
+    # SGD was tried, and did lead to worse results.
     # Adding weight decay (L2 regularization) can help prevent overfitting, which is a common issue in object detection tasks. A typical weight decay value for Adam is around 1e-5 to 1e-4
     optimizer = Adam(model.parameters(), lr=0.005, weight_decay=1e-4) # 1e-4 is a good starting point for YOLO
-    #optimizer = torch.optim.SGD(model.parameters(), lr=0.005, momentum=0.9, weight_decay=1e-4)
 
     # Adding a learning rate scheduler that reduces the learning rate when the validation loss plateaus
     # If val_loss doesn't improve for 3 consecutive epochs, reduce the learning rate by a factor of 0.5. This can help the model converge better and escape local minima.
     scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3)
 
-    # Early stopping hyperparameters
+    # Early stopping hyperparameters.
     max_epochs = 100
     patience = 5
     best_val_loss = float('inf')
@@ -128,7 +128,7 @@ def train_model(device):
     # Initialise log file to store losses in.
     initialise_logs()
 
-    # Epoch.
+    # Epoch loop.
     for epoch in range(max_epochs):
         # Training phase
         model.train()
@@ -192,7 +192,7 @@ def train_model(device):
             impatience = 0
 
             # Save the best model weights
-            torch.save(model.state_dict(), "best_yolo_model.pth")
+            torch.save(model.state_dict(), "yolo_model.pth")
         else: # Equal/Higher loss, no improvement.
             impatience += 1
             if impatience >= patience:
@@ -200,5 +200,5 @@ def train_model(device):
                 break
     
     print("Training complete. Best validation loss: {:.4f}".format(best_val_loss))
-    print("Best model saved as 'best_yolo_model.pth'.")
+    print("Best model saved as 'yolo_model.pth'.")
 

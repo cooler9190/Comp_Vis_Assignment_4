@@ -1,9 +1,9 @@
 ﻿import pandas as pd
 import matplotlib.pyplot as plt
 
+# Creates 6 loss graphs from the loss_log.csv file (1 total loss, 5 loss components).
 data = pd.read_csv("loss_log.csv")
 components = ["loss", "coordinate", "dimension", "object_confidence", "noobject_confidence", "class_confidence"]
-
 for comp in components:
     plt.figure()
     plt.plot(data["epoch"], data[f"train_{comp}"], label="train")
