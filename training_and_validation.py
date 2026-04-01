@@ -56,16 +56,18 @@ class YoloLoss(nn.Module):
             + class_loss
         )
 
-        # Loss components
+        # Loss components.
+        # Components to log are not averaged over the batch, as the values would be very small.
+        # This doesn't affect the resulting graph forms, so it just results in more readable axis values.
         components = {
             "coordinate": xy_loss.item(),
             "dimension": wh_loss.item(),
             "object_confidence": obj_loss.item(),
             "noobject_confidence": noobj_loss.item(),
-            "class_confidence": class_loss.item()
+            "class_confidence": class_loss.item(),
         }
 
-        # Return the average loss per item in the batch
+        # Return the average loss per item in the batch.
         return (total_loss / predictions.shape[0]), components
 
 
