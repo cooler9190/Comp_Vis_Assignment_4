@@ -41,7 +41,6 @@ def calculate_iou(box1, box2):
     # Add small epsilon to prevent division by zero
     return inter_area / (union_area + 1e-6)
 
-
 # Calculate mAP at IoU=0.5 for a given dataloader using torchmetrics
 def calculate_mAP_score(model, dataloader):
     device = next(model.parameters()).device  # Get device from model parameters
